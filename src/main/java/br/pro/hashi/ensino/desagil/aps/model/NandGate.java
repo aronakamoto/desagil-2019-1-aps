@@ -3,6 +3,7 @@ package br.pro.hashi.ensino.desagil.aps.model;
 public class NandGate extends Gate {
     private final SignalEmitter[] emitters;
 
+
     public NandGate() {
         super(2);
         emitters = new SignalEmitter[2];
