@@ -3,74 +3,78 @@ package br.pro.hashi.ensino.desagil.desmat.view;
 import br.pro.hashi.ensino.desagil.desmat.model.Calculator;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.net.URL;
 
-// A classe JPanel representa uma das componentes mais
-// simples da Swing. A função dela é simplesmente ser
-// um contêiner para colocar outras componentes dentro.
-// A razão de implementar ActionListener está mais abaixo.
-public class CalculatorView extends JPanel implements ActionListener {
-
-    // A ideia é que essa componente gráfica represente
-    // uma calculadora específica. Essa calculadora que
-    // está sendo representada é guardada como atributo.
+// Duas modificações em relação à versão da entrega anterior:
+// (a) esta classe agora é subclasse de FixedPanel em vez
+// de JPanel; e (b) esta classe agora implementa MouseListener,
+// indicando que ela reage a eventos de interação com o mouse.
+public class CalculatorView extends FixedPanel implements ActionListener, MouseListener {
     private final Calculator calculator;
 
-    // A classe JTextField representa um campo de texto.
     private final JTextField weightField;
     private final JTextField radiusField;
     private final JTextField resultField;
 
+    // Novos atributos necessários para esta versão da interface.
+    private final Image image;
+    private Color color;
+
     public CalculatorView(Calculator calculator) {
+
+        // Como subclasse de FixedPanel, esta classe agora
+        // exige que uma largura e uma altura sejam fixadas.
+        super(245, 346);
+
         this.calculator = calculator;
 
-        // Nada de especial na construção dos campos.
         weightField = new JTextField();
         radiusField = new JTextField();
         resultField = new JTextField();
 
-        // A classe JLabel representa um rótulo, ou seja,
-        // um texto não-editável que queremos colocar na
-        // interface para identificar alguma coisa. Não
-        // precisa ser atributo, pois não precisamos mais
-        // mexer nesses objetos depois de criar e adicionar.
         JLabel weightLabel = new JLabel("Weight");
         JLabel radiusLabel = new JLabel("Radius");
         JLabel resultLabel = new JLabel("Result");
 
-        // Um JPanel tem um layout, ou seja, um padrão para
-        // organizar as componentes dentro dele. A linha abaixo
-        // estabelece um dos padrões mais simples: simplesmente
-        // colocar uma componente debaixo da outra, alinhadas.
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        // Não há mais a chamada de setLayout, pois ela agora
+        // acontece no construtor da superclasse FixedPanel.
 
-        // Colocamos todas componentes aqui no contêiner.
-        add(weightLabel);
-        add(weightField);
-        add(radiusLabel);
-        add(radiusField);
-        add(resultLabel);
-        add(resultField);
+        // Como subclasse de FixedPanel, agora podemos definir a
+        // posição e o tamanho de cada componente ao adicioná-la.
+        add(weightLabel, 10, 10, 75, 25);
+        add(weightField, 85, 10, 150, 25);
+        add(radiusLabel, 10, 45, 75, 25);
+        add(radiusField, 85, 45, 150, 25);
+        add(resultLabel, 10, 311, 75, 25);
+        add(resultField, 85, 311, 120, 25);
 
-        // Uma campo de texto tem uma lista de observadores que
-        // reagem quando o usuário dá Enter depois de digitar.
-        // Usamos o método addActionListener para adicionar esta
-        // instância de CalculatorView, ou seja "this", nessa
-        // lista. Só que addActionListener espera receber um objeto
-        // do tipo ActionListener como parâmetro. É por isso que
-        // adicionamos o "implements ActionListener" lá em cima.
+        // Inicializamos o atributo de cor simplesmente como preto.
+        color = Color.BLACK;
+
+        // Usamos esse carregamento nos Desafios, vocês lembram?
+        String name = calculator.toString() + ".png";
+        URL url = getClass().getClassLoader().getResource(name);
+        image = getToolkit().getImage(url);
+
+        // Toda componente Swing tem uma lista de observadores
+        // que reagem quando algum evento de mouse acontece.
+        // Usamos o método addMouseListener para adicionar a
+        // própria componente, ou seja "this", nessa lista.
+        // Só que addMouseListener espera receber um objeto
+        // do tipo MouseListener como parâmetro. É por isso que
+        // adicionamos o "implements MouseListener" lá em cima.
+        addMouseListener(this);
+
         weightField.addActionListener(this);
         radiusField.addActionListener(this);
 
-        // O último campo de texto não pode ser editável, pois é
-        // só para exibição. Logo, configuramos como desabilitado.
         resultField.setEnabled(false);
 
-        // Update é o método que definimos abaixo para atualizar o
-        // último campo de acordo com os valores dos primeiros.
-        // Precisamos chamar esse método no final da construção
-        // para garantir que a interface não nasce inconsistente.
         update();
     }
 
@@ -79,30 +83,87 @@ public class CalculatorView extends JPanel implements ActionListener {
         double radius;
 
         try {
-            // O conteúdo de um campo é uma String, não um double.
-            // Se queremos interpretar como double, precisamos fazer
-            // uma conversão. Esse Double.parseDouble faz isso...
             weight = Double.parseDouble(weightField.getText());
             radius = Double.parseDouble(radiusField.getText());
-
         } catch (NumberFormatException exception) {
-            // ...e se a string não representar um double válido,
-            // esse parseDouble lança um NumberFormatException.
             resultField.setText("?");
             return;
         }
 
         double result = calculator.calculate(weight, radius);
 
-        // O contrário também vale! Para colocar um double no
-        // campo, precisamos antes converter ele para String.
         resultField.setText(Double.toString(result));
     }
 
-    // O que esta componente deve fazer quando o usuário der um
-    // Enter depois de digitar? Apenas chamar o update, é claro!
     @Override
     public void actionPerformed(ActionEvent event) {
         update();
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent event) {
+
+        // Descobre em qual posição o clique ocorreu.
+        int x = event.getX();
+        int y = event.getY();
+
+        // Se o clique foi dentro do quadrado colorido...
+        if (x >= 210 && x < 235 && y >= 311 && y < 336) {
+
+            // ...então abrimos a janela seletora de cor...
+            color = JColorChooser.showDialog(this, null, color);
+
+            // ...e chamamos repaint para atualizar a tela.
+            repaint();
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent event) {
+        // Não precisamos de uma reação específica à ação de pressionar
+        // um botão do mouse, mas o contrato com MouseListener obriga
+        // esse método a existir, então simplesmente deixamos vazio.
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent event) {
+        // Não precisamos de uma reação específica à ação de soltar
+        // um botão do mouse, mas o contrato com MouseListener obriga
+        // esse método a existir, então simplesmente deixamos vazio.
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent event) {
+        // Não precisamos de uma reação específica à ação do mouse
+        // entrar no painel, mas o contrato com MouseListener obriga
+        // esse método a existir, então simplesmente deixamos vazio.
+    }
+
+    @Override
+    public void mouseExited(MouseEvent event) {
+        // Não precisamos de uma reação específica à ação do mouse
+        // sair do painel, mas o contrato com MouseListener obriga
+        // esse método a existir, então simplesmente deixamos vazio.
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+
+        // Não podemos esquecer desta linha, pois não somos os
+        // únicos responsáveis por desenhar o painel, como era
+        // o caso nos Desafios. Agora é preciso desenhar também
+        // componentes internas, e isso é feito pela superclasse.
+        super.paintComponent(g);
+
+        // Desenha a imagem, passando sua posição e seu tamanho.
+        g.drawImage(image, 10, 80, 221, 221, this);
+
+        // Desenha um quadrado cheio.
+        g.setColor(color);
+        g.fillRect(210, 311, 25, 25);
+
+        // Linha necessária para evitar atrasos
+        // de renderização em sistemas Linux.
+        getToolkit().sync();
     }
 }
