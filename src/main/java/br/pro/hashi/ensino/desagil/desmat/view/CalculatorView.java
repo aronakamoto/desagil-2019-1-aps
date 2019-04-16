@@ -155,12 +155,13 @@ public class CalculatorView extends FixedPanel implements ActionListener, MouseL
         // componentes internas, e isso é feito pela superclasse.
         super.paintComponent(g);
 
+
+
         // Desenha a imagem, passando sua posição e seu tamanho.
         g.drawImage(image, 10, 80, 221, 221, this);
 
         // Desenha um quadrado cheio.
         g.setColor(color);
-        g.fillRect(210, 311, 25, 25);
 
         // Linha necessária para evitar atrasos
         // de renderização em sistemas Linux.
