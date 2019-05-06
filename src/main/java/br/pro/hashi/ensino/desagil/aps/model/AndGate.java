@@ -9,7 +9,6 @@ public class AndGate extends Gate {
         super("AND", 2, 1);
 
         nandLeft = new NandGate();
-
         nandRight = new NandGate();
         nandRight.connect(0, nandLeft);
         nandRight.connect(1, nandLeft);
