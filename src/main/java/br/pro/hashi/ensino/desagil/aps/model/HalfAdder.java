@@ -2,9 +2,9 @@ package br.pro.hashi.ensino.desagil.aps.model;
 
 public class HalfAdder extends Gate {
 
-    private final NandGate nandOne;
-    private final NandGate nandTwo;
-    private final NandGate nandThree;
+    private final NandGate nandLeft;
+    private final NandGate nandTop;
+    private final NandGate nandBottom;
 
     private final NandGate nandSum;
     private final NandGate nandCarry;
@@ -12,22 +12,19 @@ public class HalfAdder extends Gate {
     public HalfAdder() {
         super("Half-Adder", 2, 2);
 
-        nandOne = new NandGate();
-        nandTwo = new NandGate();
-        nandThree = new NandGate();
-
-        nandSum = new NandGate();
+        nandLeft = new NandGate();
+        nandTop = new NandGate();
+        nandBottom = new NandGate();
         nandCarry = new NandGate();
 
-        nandTwo.connect(1, nandOne);
+        nandSum = new NandGate();
+        nandSum.connect(0, nandTop);
+        nandSum.connect(1, nandBottom);
 
-        nandThree.connect(0, nandOne);
-
-        nandSum.connect(0, nandTwo);
-        nandSum.connect(1, nandThree);
-
-        nandCarry.connect(0, nandOne);
-        nandCarry.connect(1, nandOne);
+        nandTop.connect(1, nandLeft);
+        nandBottom.connect(0, nandLeft);
+        nandCarry.connect(0,nandLeft);
+        nandCarry.connect(1,nandLeft);
 
     }
 
@@ -46,14 +43,12 @@ public class HalfAdder extends Gate {
     public void connect(int inputPin, SignalEmitter emitter) {
         switch (inputPin) {
             case 0:
-                nandOne.connect(0, emitter);
-                nandOne.connect(1, emitter);
+                nandLeft.connect(0, emitter);
+                nandTop.connect(0, emitter);
                 break;
             case 1:
-                nandTwo.connect(0, emitter);
-                break;
-            case 2:
-                nandThree.connect(1, emitter);
+                nandLeft.connect(1, emitter);
+                nandBottom.connect(1, emitter);
                 break;
 
             default:
